@@ -6,111 +6,116 @@
 
 /**
  * @file
- * Implements RVI strategy.
+ * Implements RVI strategy based on the Relative Vigor Index indicator.
  */
 
 // Includes.
-#include "../../EA31337-classes/Indicators/Indi_RVI.mqh"
-#include "../../EA31337-classes/Strategy.mqh"
+#include <EA31337-classes/Indicators/Indi_RVI.mqh>
+#include <EA31337-classes/Strategy.mqh>
 
 // User input params.
-string __RVI_Parameters__ = "-- Settings for the Relative Vigor Index indicator --";  // >>> RVI <<<
-uint RVI_Active_Tf = 0;                        // Activate timeframes (1-255, e.g. M1=1,M5=2,M15=4,M30=8,H1=16,H2=32...)
-uint RVI_Period = 10;                          // Period
-ENUM_TRAIL_TYPE RVI_TrailingStopMethod = 22;   // Trail stop method
-ENUM_TRAIL_TYPE RVI_TrailingProfitMethod = 1;  // Trail profit method
-int RVI_Shift = 2;                             // Shift
-double RVI_SignalLevel = 0.00000000;           // Signal level
-int RVI1_SignalMethod = 0;                     // Signal method for M1 (0-
-int RVI5_SignalMethod = 0;                     // Signal method for M5 (0-
-int RVI15_SignalMethod = 0;                    // Signal method for M15 (0-
-int RVI30_SignalMethod = 0;                    // Signal method for M30 (0-
-int RVI1_OpenCondition1 = 0;                   // Open condition 1 for M1 (0-1023)
-int RVI1_OpenCondition2 = 0;                   // Open condition 2 for M1 (0-)
-ENUM_MARKET_EVENT RVI1_CloseCondition = C_RVI_BUY_SELL;   // Close condition for M1
-int RVI5_OpenCondition1 = 0;                              // Open condition 1 for M5 (0-1023)
-int RVI5_OpenCondition2 = 0;                              // Open condition 2 for M5 (0-)
-ENUM_MARKET_EVENT RVI5_CloseCondition = C_RVI_BUY_SELL;   // Close condition for M5
-int RVI15_OpenCondition1 = 0;                             // Open condition 1 for M15 (0-)
-int RVI15_OpenCondition2 = 0;                             // Open condition 2 for M15 (0-)
-ENUM_MARKET_EVENT RVI15_CloseCondition = C_RVI_BUY_SELL;  // Close condition for M15
-int RVI30_OpenCondition1 = 0;                             // Open condition 1 for M30 (0-)
-int RVI30_OpenCondition2 = 0;                             // Open condition 2 for M30 (0-)
-ENUM_MARKET_EVENT RVI30_CloseCondition = C_RVI_BUY_SELL;  // Close condition for M30
-double RVI1_MaxSpread = 6.0;                              // Max spread to trade for M1 (pips)
-double RVI5_MaxSpread = 7.0;                              // Max spread to trade for M5 (pips)
-double RVI15_MaxSpread = 8.0;                             // Max spread to trade for M15 (pips)
-double RVI30_MaxSpread = 10.0;                            // Max spread to trade for M30 (pips)
+INPUT string __RVI_Parameters__ = "-- RVI strategy params --";  // >>> RVI <<<
+INPUT int RVI_Active_Tf = 0;  // Activate timeframes (1-255, e.g. M1=1,M5=2,M15=4,M30=8,H1=16,H2=32...)
+INPUT int RVI_Period = 10;    // Period
+INPUT ENUM_TRAIL_TYPE RVI_TrailingStopMethod = 22;             // Trail stop method
+INPUT ENUM_TRAIL_TYPE RVI_TrailingProfitMethod = 1;            // Trail profit method
+INPUT int RVI_Shift = 2;                                       // Shift
+INPUT double RVI_SignalOpenLevel = 0.00000000;                 // Signal open level
+INPUT int RVI1_SignalBaseMethod = 0;                           // Signal base method (0-
+INPUT int RVI1_OpenCondition1 = 0;                             // Open condition 1 (0-1023)
+INPUT int RVI1_OpenCondition2 = 0;                             // Open condition 2 (0-)
+INPUT ENUM_MARKET_EVENT RVI1_CloseCondition = C_RVI_BUY_SELL;  // Close condition for M1
+INPUT double RVI_MaxSpread = 6.0;                              // Max spread to trade (pips)
+
+// Struct to define strategy parameters to override.
+struct Stg_RVI_Params : Stg_Params {
+  unsigned int RVI_Period;
+  ENUM_APPLIED_PRICE RVI_Applied_Price;
+  int RVI_Shift;
+  ENUM_TRAIL_TYPE RVI_TrailingStopMethod;
+  ENUM_TRAIL_TYPE RVI_TrailingProfitMethod;
+  double RVI_SignalOpenLevel;
+  long RVI_SignalBaseMethod;
+  long RVI_SignalOpenMethod1;
+  long RVI_SignalOpenMethod2;
+  double RVI_SignalCloseLevel;
+  ENUM_MARKET_EVENT RVI_SignalCloseMethod1;
+  ENUM_MARKET_EVENT RVI_SignalCloseMethod2;
+  double RVI_MaxSpread;
+
+  // Constructor: Set default param values.
+  Stg_RVI_Params()
+      : RVI_Period(::RVI_Period),
+        RVI_Applied_Price(::RVI_Applied_Price),
+        RVI_Shift(::RVI_Shift),
+        RVI_TrailingStopMethod(::RVI_TrailingStopMethod),
+        RVI_TrailingProfitMethod(::RVI_TrailingProfitMethod),
+        RVI_SignalOpenLevel(::RVI_SignalOpenLevel),
+        RVI_SignalBaseMethod(::RVI_SignalBaseMethod),
+        RVI_SignalOpenMethod1(::RVI_SignalOpenMethod1),
+        RVI_SignalOpenMethod2(::RVI_SignalOpenMethod2),
+        RVI_SignalCloseLevel(::RVI_SignalCloseLevel),
+        RVI_SignalCloseMethod1(::RVI_SignalCloseMethod1),
+        RVI_SignalCloseMethod2(::RVI_SignalCloseMethod2),
+        RVI_MaxSpread(::RVI_MaxSpread) {}
+};
+
+// Loads pair specific param values.
+#include "sets/EURUSD_H1.h"
+#include "sets/EURUSD_H4.h"
+#include "sets/EURUSD_M1.h"
+#include "sets/EURUSD_M15.h"
+#include "sets/EURUSD_M30.h"
+#include "sets/EURUSD_M5.h"
 
 class Stg_RVI : public Strategy {
  public:
   Stg_RVI(StgParams &_params, string _name) : Strategy(_params, _name) {}
 
-  static Stg_RVI *Init_M1() {
-    ChartParams cparams1(PERIOD_M1);
-    IndicatorParams rvi_iparams(10, INDI_RVI);
-    RVI_Params rvi1_iparams(RVI_Period);
-    StgParams rvi1_sparams(new Trade(PERIOD_M1, _Symbol), new Indi_RVI(rvi1_iparams, rvi_iparams, cparams1), NULL,
-                           NULL);
-    rvi1_sparams.SetSignals(RVI1_SignalMethod, RVI1_OpenCondition1, RVI1_OpenCondition2, RVI1_CloseCondition, NULL,
-                            RVI_SignalLevel, NULL);
-    rvi1_sparams.SetStops(RVI_TrailingProfitMethod, RVI_TrailingStopMethod);
-    rvi1_sparams.SetMaxSpread(RVI1_MaxSpread);
-    rvi1_sparams.SetId(RVI1);
-    return (new Stg_RVI(rvi1_sparams, "RVI1"));
-  }
-  static Stg_RVI *Init_M5() {
-    ChartParams cparams5(PERIOD_M5);
-    IndicatorParams rvi_iparams(10, INDI_RVI);
-    RVI_Params rvi5_iparams(RVI_Period);
-    StgParams rvi5_sparams(new Trade(PERIOD_M5, _Symbol), new Indi_RVI(rvi5_iparams, rvi_iparams, cparams5), NULL,
-                           NULL);
-    rvi5_sparams.SetSignals(RVI5_SignalMethod, RVI5_OpenCondition1, RVI5_OpenCondition2, RVI5_CloseCondition, NULL,
-                            RVI_SignalLevel, NULL);
-    rvi5_sparams.SetStops(RVI_TrailingProfitMethod, RVI_TrailingStopMethod);
-    rvi5_sparams.SetMaxSpread(RVI5_MaxSpread);
-    rvi5_sparams.SetId(RVI5);
-    return (new Stg_RVI(rvi5_sparams, "RVI5"));
-  }
-  static Stg_RVI *Init_M15() {
-    ChartParams cparams15(PERIOD_M15);
-    IndicatorParams rvi_iparams(10, INDI_RVI);
-    RVI_Params rvi15_iparams(RVI_Period);
-    StgParams rvi15_sparams(new Trade(PERIOD_M15, _Symbol), new Indi_RVI(rvi15_iparams, rvi_iparams, cparams15), NULL,
-                            NULL);
-    rvi15_sparams.SetSignals(RVI15_SignalMethod, RVI15_OpenCondition1, RVI15_OpenCondition2, RVI15_CloseCondition, NULL,
-                             RVI_SignalLevel, NULL);
-    rvi15_sparams.SetStops(RVI_TrailingProfitMethod, RVI_TrailingStopMethod);
-    rvi15_sparams.SetMaxSpread(RVI15_MaxSpread);
-    rvi15_sparams.SetId(RVI15);
-    return (new Stg_RVI(rvi15_sparams, "RVI15"));
-  }
-  static Stg_RVI *Init_M30() {
-    ChartParams cparams30(PERIOD_M30);
-    IndicatorParams rvi_iparams(10, INDI_RVI);
-    RVI_Params rvi30_iparams(RVI_Period);
-    StgParams rvi30_sparams(new Trade(PERIOD_M30, _Symbol), new Indi_RVI(rvi30_iparams, rvi_iparams, cparams30), NULL,
-                            NULL);
-    rvi30_sparams.SetSignals(RVI30_SignalMethod, RVI30_OpenCondition1, RVI30_OpenCondition2, RVI30_CloseCondition, NULL,
-                             RVI_SignalLevel, NULL);
-    rvi30_sparams.SetStops(RVI_TrailingProfitMethod, RVI_TrailingStopMethod);
-    rvi30_sparams.SetMaxSpread(RVI30_MaxSpread);
-    rvi30_sparams.SetId(RVI30);
-    return (new Stg_RVI(rvi30_sparams, "RVI30"));
-  }
-  static Stg_RVI *Init(ENUM_TIMEFRAMES _tf) {
+  static Stg_RVI *Init(ENUM_TIMEFRAMES _tf = NULL, long _magic_no = NULL, ENUM_LOG_LEVEL _log_level = V_INFO) {
+    // Initialize strategy initial values.
+    Stg_RVI_Params _params;
     switch (_tf) {
-      case PERIOD_M1:
-        return Init_M1();
-      case PERIOD_M5:
-        return Init_M5();
-      case PERIOD_M15:
-        return Init_M15();
-      case PERIOD_M30:
-        return Init_M30();
-      default:
-        return NULL;
+      case PERIOD_M1: {
+        Stg_RVI_EURUSD_M1_Params _new_params;
+        _params = _new_params;
+      }
+      case PERIOD_M5: {
+        Stg_RVI_EURUSD_M5_Params _new_params;
+        _params = _new_params;
+      }
+      case PERIOD_M15: {
+        Stg_RVI_EURUSD_M15_Params _new_params;
+        _params = _new_params;
+      }
+      case PERIOD_M30: {
+        Stg_RVI_EURUSD_M30_Params _new_params;
+        _params = _new_params;
+      }
+      case PERIOD_H1: {
+        Stg_RVI_EURUSD_H1_Params _new_params;
+        _params = _new_params;
+      }
+      case PERIOD_H4: {
+        Stg_RVI_EURUSD_H4_Params _new_params;
+        _params = _new_params;
+      }
     }
+    // Initialize strategy parameters.
+    ChartParams cparams(_tf);
+    RVI_Params adx_params(_params.RVI_Period, _params.RVI_Applied_Price);
+    IndicatorParams adx_iparams(10, INDI_RVI);
+    StgParams sparams(new Trade(_tf, _Symbol), new Indi_RVI(adx_params, adx_iparams, cparams), NULL, NULL);
+    sparams.logger.SetLevel(_log_level);
+    sparams.SetMagicNo(_magic_no);
+    sparams.SetSignals(_params.RVI_SignalBaseMethod, _params.RVI_SignalOpenMethod1, _params.RVI_SignalOpenMethod2,
+                       _params.RVI_SignalCloseMethod1, _params.RVI_SignalCloseMethod2, _params.RVI_SignalOpenLevel,
+                       _params.RVI_SignalCloseLevel);
+    sparams.SetStops(_params.RVI_TrailingProfitMethod, _params.RVI_TrailingStopMethod);
+    sparams.SetMaxSpread(_params.RVI_MaxSpread);
+    // Initialize strategy instance.
+    Strategy *_strat = new Stg_RVI(sparams, "RVI");
+    return _strat;
   }
 
   /**
@@ -151,5 +156,13 @@ class Stg_RVI : public Strategy {
         break;
     }
     return _result;
+  }
+
+  /**
+   * Check strategy's closing signal.
+   */
+  bool SignalClose(ENUM_ORDER_TYPE _cmd, long _signal_method = EMPTY, double _signal_level = EMPTY) {
+    if (_signal_level == EMPTY) _signal_level = GetSignalCloseLevel();
+    return SignalOpen(Order::NegateOrderType(_cmd), _signal_method, _signal_level);
   }
 };
