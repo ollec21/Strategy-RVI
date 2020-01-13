@@ -15,7 +15,8 @@
 
 // User input params.
 INPUT string __RVI_Parameters__ = "-- RVI strategy params --";  // >>> RVI <<<
-INPUT int RVI_Period = 10;                                      // Period
+INPUT unsigned int RVI_Period = 10;                             // Averaging period
+INPUT ENUM_SIGNAL_LINE RVI_Mode = 0;                            // Indicator line index.
 INPUT int RVI_Shift = 2;                                        // Shift
 INPUT int RVI_SignalOpenMethod = 0;                             // Signal open method (0-
 INPUT double RVI_SignalOpenLevel = 0.00000000;                  // Signal open level
@@ -28,7 +29,7 @@ INPUT double RVI_MaxSpread = 6.0;                               // Max spread to
 // Struct to define strategy parameters to override.
 struct Stg_RVI_Params : Stg_Params {
   unsigned int RVI_Period;
-  ENUM_APPLIED_PRICE RVI_Applied_Price;
+  ENUM_SIGNAL_LINE RVI_Mode;
   int RVI_Shift;
   int RVI_SignalOpenMethod;
   double RVI_SignalOpenLevel;
@@ -41,7 +42,7 @@ struct Stg_RVI_Params : Stg_Params {
   // Constructor: Set default param values.
   Stg_RVI_Params()
       : RVI_Period(::RVI_Period),
-        RVI_Applied_Price(::RVI_Applied_Price),
+        RVI_Mode(::RVI_Mode),
         RVI_Shift(::RVI_Shift),
         RVI_SignalOpenMethod(::RVI_SignalOpenMethod),
         RVI_SignalOpenLevel(::RVI_SignalOpenLevel),
@@ -95,9 +96,9 @@ class Stg_RVI : public Strategy {
     }
     // Initialize strategy parameters.
     ChartParams cparams(_tf);
-    RVI_Params adx_params(_params.RVI_Period, _params.RVI_Applied_Price);
-    IndicatorParams adx_iparams(10, INDI_RVI);
-    StgParams sparams(new Trade(_tf, _Symbol), new Indi_RVI(adx_params, adx_iparams, cparams), NULL, NULL);
+    RVI_Params rvi_params(_params.RVI_Period);
+    IndicatorParams rvi_iparams(10, INDI_RVI);
+    StgParams sparams(new Trade(_tf, _Symbol), new Indi_RVI(rvi_params, rvi_iparams, cparams), NULL, NULL);
     sparams.logger.SetLevel(_log_level);
     sparams.SetMagicNo(_magic_no);
     sparams.SetSignals(_params.RVI_SignalOpenMethod, _params.RVI_SignalOpenLevel, _params.RVI_SignalCloseMethod,
@@ -115,7 +116,7 @@ class Stg_RVI : public Strategy {
    *   _cmd (int) - type of trade order command
    *   period (int) - period to check for
    *   _method (int) - signal method to use by using bitwise AND operation
-   *   _level1 (double) - signal level to consider the signal
+   *   _level (double) - signal level to consider the signal
    */
   bool SignalOpen(ENUM_ORDER_TYPE _cmd, int _method = 0, double _level = 0.0) {
     bool _result = false;
@@ -124,8 +125,6 @@ class Stg_RVI : public Strategy {
     double rvi_1 = ((Indi_RVI *) this.Data()).GetValue(1);
     double rvi_2 = ((Indi_RVI *) this.Data()).GetValue(2);
     */
-    if (_level1 == EMPTY) _level1 = GetSignalLevel1();
-    if (_level2 == EMPTY) _level2 = GetSignalLevel2();
     switch (_cmd) {
       /*
         //26. RVI

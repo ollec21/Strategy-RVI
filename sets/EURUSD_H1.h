@@ -10,7 +10,7 @@ struct Stg_RVI_EURUSD_H1_Params : Stg_RVI_Params {
     symbol = "EURUSD";
     tf = PERIOD_H1;
     RVI_Period = 2;
-    RVI_Applied_Price = 3;
+    RVI_Mode = 0;
     RVI_Shift = 0;
     RVI_SignalOpenMethod = 0;
     RVI_SignalOpenLevel = 36;
