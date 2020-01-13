@@ -12,15 +12,12 @@ struct Stg_RVI_EURUSD_H4_Params : Stg_RVI_Params {
     RVI_Period = 2;
     RVI_Applied_Price = 3;
     RVI_Shift = 0;
-    RVI_TrailingStopMethod = 6;
-    RVI_TrailingProfitMethod = 11;
+    RVI_SignalOpenMethod = 0;
     RVI_SignalOpenLevel = 36;
-    RVI_SignalBaseMethod = 0;
-    RVI_SignalOpenMethod1 = 1;
-    RVI_SignalOpenMethod2 = 0;
+    RVI_SignalCloseMethod = 1;
     RVI_SignalCloseLevel = 36;
-    RVI_SignalCloseMethod1 = 1;
-    RVI_SignalCloseMethod2 = 0;
+    RVI_PriceLimitMethod = 0;
+    RVI_PriceLimitLevel = 0;
     RVI_MaxSpread = 10;
   }
 };

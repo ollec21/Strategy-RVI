@@ -15,32 +15,27 @@
 
 // User input params.
 INPUT string __RVI_Parameters__ = "-- RVI strategy params --";  // >>> RVI <<<
-INPUT int RVI_Active_Tf = 0;  // Activate timeframes (1-255, e.g. M1=1,M5=2,M15=4,M30=8,H1=16,H2=32...)
-INPUT int RVI_Period = 10;    // Period
-INPUT ENUM_TRAIL_TYPE RVI_TrailingStopMethod = 22;             // Trail stop method
-INPUT ENUM_TRAIL_TYPE RVI_TrailingProfitMethod = 1;            // Trail profit method
-INPUT int RVI_Shift = 2;                                       // Shift
-INPUT double RVI_SignalOpenLevel = 0.00000000;                 // Signal open level
-INPUT int RVI1_SignalBaseMethod = 0;                           // Signal base method (0-
-INPUT int RVI1_OpenCondition1 = 0;                             // Open condition 1 (0-1023)
-INPUT int RVI1_OpenCondition2 = 0;                             // Open condition 2 (0-)
-INPUT ENUM_MARKET_EVENT RVI1_CloseCondition = C_RVI_BUY_SELL;  // Close condition for M1
-INPUT double RVI_MaxSpread = 6.0;                              // Max spread to trade (pips)
+INPUT int RVI_Period = 10;                                      // Period
+INPUT int RVI_Shift = 2;                                        // Shift
+INPUT int RVI_SignalOpenMethod = 0;                             // Signal open method (0-
+INPUT double RVI_SignalOpenLevel = 0.00000000;                  // Signal open level
+INPUT int RVI_SignalCloseMethod = 0;                            // Signal close method (0-
+INPUT double RVI_SignalCloseLevel = 0.00000000;                 // Signal close level
+INPUT int RVI_PriceLimitMethod = 0;                             // Price limit method
+INPUT double RVI_PriceLimitLevel = 0;                           // Price limit level
+INPUT double RVI_MaxSpread = 6.0;                               // Max spread to trade (pips)
 
 // Struct to define strategy parameters to override.
 struct Stg_RVI_Params : Stg_Params {
   unsigned int RVI_Period;
   ENUM_APPLIED_PRICE RVI_Applied_Price;
   int RVI_Shift;
-  ENUM_TRAIL_TYPE RVI_TrailingStopMethod;
-  ENUM_TRAIL_TYPE RVI_TrailingProfitMethod;
+  int RVI_SignalOpenMethod;
   double RVI_SignalOpenLevel;
-  long RVI_SignalBaseMethod;
-  long RVI_SignalOpenMethod1;
-  long RVI_SignalOpenMethod2;
+  int RVI_SignalCloseMethod;
   double RVI_SignalCloseLevel;
-  ENUM_MARKET_EVENT RVI_SignalCloseMethod1;
-  ENUM_MARKET_EVENT RVI_SignalCloseMethod2;
+  int RVI_PriceLimitMethod;
+  double RVI_PriceLimitLevel;
   double RVI_MaxSpread;
 
   // Constructor: Set default param values.
@@ -48,15 +43,12 @@ struct Stg_RVI_Params : Stg_Params {
       : RVI_Period(::RVI_Period),
         RVI_Applied_Price(::RVI_Applied_Price),
         RVI_Shift(::RVI_Shift),
-        RVI_TrailingStopMethod(::RVI_TrailingStopMethod),
-        RVI_TrailingProfitMethod(::RVI_TrailingProfitMethod),
+        RVI_SignalOpenMethod(::RVI_SignalOpenMethod),
         RVI_SignalOpenLevel(::RVI_SignalOpenLevel),
-        RVI_SignalBaseMethod(::RVI_SignalBaseMethod),
-        RVI_SignalOpenMethod1(::RVI_SignalOpenMethod1),
-        RVI_SignalOpenMethod2(::RVI_SignalOpenMethod2),
+        RVI_SignalCloseMethod(::RVI_SignalCloseMethod),
         RVI_SignalCloseLevel(::RVI_SignalCloseLevel),
-        RVI_SignalCloseMethod1(::RVI_SignalCloseMethod1),
-        RVI_SignalCloseMethod2(::RVI_SignalCloseMethod2),
+        RVI_PriceLimitMethod(::RVI_PriceLimitMethod),
+        RVI_PriceLimitLevel(::RVI_PriceLimitLevel),
         RVI_MaxSpread(::RVI_MaxSpread) {}
 };
 
@@ -108,10 +100,8 @@ class Stg_RVI : public Strategy {
     StgParams sparams(new Trade(_tf, _Symbol), new Indi_RVI(adx_params, adx_iparams, cparams), NULL, NULL);
     sparams.logger.SetLevel(_log_level);
     sparams.SetMagicNo(_magic_no);
-    sparams.SetSignals(_params.RVI_SignalBaseMethod, _params.RVI_SignalOpenMethod1, _params.RVI_SignalOpenMethod2,
-                       _params.RVI_SignalCloseMethod1, _params.RVI_SignalCloseMethod2, _params.RVI_SignalOpenLevel,
+    sparams.SetSignals(_params.RVI_SignalOpenMethod, _params.RVI_SignalOpenLevel, _params.RVI_SignalCloseMethod,
                        _params.RVI_SignalCloseLevel);
-    sparams.SetStops(_params.RVI_TrailingProfitMethod, _params.RVI_TrailingStopMethod);
     sparams.SetMaxSpread(_params.RVI_MaxSpread);
     // Initialize strategy instance.
     Strategy *_strat = new Stg_RVI(sparams, "RVI");
@@ -124,19 +114,18 @@ class Stg_RVI : public Strategy {
    * @param
    *   _cmd (int) - type of trade order command
    *   period (int) - period to check for
-   *   _signal_method (int) - signal method to use by using bitwise AND operation
-   *   _signal_level1 (double) - signal level to consider the signal
+   *   _method (int) - signal method to use by using bitwise AND operation
+   *   _level1 (double) - signal level to consider the signal
    */
-  bool SignalOpen(ENUM_ORDER_TYPE _cmd, long _signal_method = EMPTY, double _signal_level = EMPTY) {
+  bool SignalOpen(ENUM_ORDER_TYPE _cmd, int _method = 0, double _level = 0.0) {
     bool _result = false;
     /*
     double rvi_0 = ((Indi_RVI *) this.Data()).GetValue(0);
     double rvi_1 = ((Indi_RVI *) this.Data()).GetValue(1);
     double rvi_2 = ((Indi_RVI *) this.Data()).GetValue(2);
     */
-    if (_signal_method == EMPTY) _signal_method = GetSignalBaseMethod();
-    if (_signal_level1 == EMPTY) _signal_level1 = GetSignalLevel1();
-    if (_signal_level2 == EMPTY) _signal_level2 = GetSignalLevel2();
+    if (_level1 == EMPTY) _level1 = GetSignalLevel1();
+    if (_level2 == EMPTY) _level2 = GetSignalLevel2();
     switch (_cmd) {
       /*
         //26. RVI
@@ -161,8 +150,23 @@ class Stg_RVI : public Strategy {
   /**
    * Check strategy's closing signal.
    */
-  bool SignalClose(ENUM_ORDER_TYPE _cmd, long _signal_method = EMPTY, double _signal_level = EMPTY) {
-    if (_signal_level == EMPTY) _signal_level = GetSignalCloseLevel();
-    return SignalOpen(Order::NegateOrderType(_cmd), _signal_method, _signal_level);
+  bool SignalClose(ENUM_ORDER_TYPE _cmd, int _method = 0, double _level = 0.0) {
+    return SignalOpen(Order::NegateOrderType(_cmd), _method, _level);
+  }
+
+  /**
+   * Gets price limit value for profit take or stop loss.
+   */
+  double PriceLimit(ENUM_ORDER_TYPE _cmd, ENUM_STG_PRICE_LIMIT_MODE _mode, int _method = 0, double _level = 0.0) {
+    double _trail = _level * Market().GetPipSize();
+    int _direction = Order::OrderDirection(_cmd) * (_mode == LIMIT_VALUE_STOP ? -1 : 1);
+    double _default_value = Market().GetCloseOffer(_cmd) + _trail * _method * _direction;
+    double _result = _default_value;
+    switch (_method) {
+      case 0: {
+        // @todo
+      }
+    }
+    return _result;
   }
 };
