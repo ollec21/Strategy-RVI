@@ -11,9 +11,9 @@ struct Stg_RVI_EURUSD_H4_Params : Stg_RVI_Params {
     RVI_Mode = 0;
     RVI_Shift = 0;
     RVI_SignalOpenMethod = 0;
-    RVI_SignalOpenLevel = 36;
+    RVI_SignalOpenLevel = 0;
     RVI_SignalCloseMethod = 1;
-    RVI_SignalCloseLevel = 36;
+    RVI_SignalCloseLevel = 0;
     RVI_PriceLimitMethod = 0;
     RVI_PriceLimitLevel = 0;
     RVI_MaxSpread = 10;

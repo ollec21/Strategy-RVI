@@ -94,38 +94,27 @@ class Stg_RVI : public Strategy {
   }
 
   /**
-   * Check if RVI indicator is on buy or sell.
-   *
-   * @param
-   *   _cmd (int) - type of trade order command
-   *   period (int) - period to check for
-   *   _method (int) - signal method to use by using bitwise AND operation
-   *   _level (double) - signal level to consider the signal
+   * Check strategy's opening signal.
    */
   bool SignalOpen(ENUM_ORDER_TYPE _cmd, int _method = 0, double _level = 0.0) {
-    bool _result = false;
-    /*
-    double rvi_0 = ((Indi_RVI *) this.Data()).GetValue(0);
-    double rvi_1 = ((Indi_RVI *) this.Data()).GetValue(1);
-    double rvi_2 = ((Indi_RVI *) this.Data()).GetValue(2);
-    */
-    switch (_cmd) {
-      /*
-        //26. RVI
-        //RECOMMENDED TO USE WITH A TREND INDICATOR
-        //Buy: main line (green) crosses signal (red) upwards
-        //Sell: main line (green) crosses signal (red) downwards
-        if(iRVI(NULL,pirvi,pirviu,LINE_MAIN,1)<iRVI(NULL,pirvi,pirviu,LINE_SIGNAL,1)
-        && iRVI(NULL,pirvi,pirviu,LINE_MAIN,0)>=iRVI(NULL,pirvi,pirviu,LINE_SIGNAL,0))
-        {f26=1;}
-        if(iRVI(NULL,pirvi,pirviu,LINE_MAIN,1)>iRVI(NULL,pirvi,pirviu,LINE_SIGNAL,1)
-        && iRVI(NULL,pirvi,pirviu,LINE_MAIN,0)<=iRVI(NULL,pirvi,pirviu,LINE_SIGNAL,0))
-        {f26=-1;}
-      */
-      case ORDER_TYPE_BUY:
-        break;
-      case ORDER_TYPE_SELL:
-        break;
+    Indicator *_indi = Data();
+    bool _is_valid = _indi[CURR].IsValid() && _indi[PREV].IsValid() && _indi[PPREV].IsValid();
+    bool _result = _is_valid;
+    if (_is_valid) {
+      switch (_cmd) {
+        case ORDER_TYPE_BUY:
+          _result = _indi[CURR].value[LINE_MAIN] > _indi[CURR].value[LINE_SIGNAL] + _level;
+          // Buy: main line (green) crosses signal (red) upwards.
+          if (METHOD(_method, 0)) _result &= _indi[PPREV].value[LINE_MAIN] < _indi[PPREV].value[LINE_SIGNAL];
+          if (METHOD(_method, 1)) _result &= _indi[CURR].value[0] < _level;
+          break;
+        case ORDER_TYPE_SELL:
+          _result = _indi[CURR].value[LINE_MAIN] < _indi[CURR].value[LINE_SIGNAL] - _level;
+          // Sell: main line (green) crosses signal (red) downwards.
+          if (METHOD(_method, 0)) _result &= _indi[PPREV].value[LINE_MAIN] > _indi[PPREV].value[LINE_SIGNAL];
+          if (METHOD(_method, 1)) _result &= _indi[CURR].value[0] > _level;
+          break;
+      }
     }
     return _result;
   }
@@ -174,13 +163,14 @@ class Stg_RVI : public Strategy {
    */
   double PriceLimit(ENUM_ORDER_TYPE _cmd, ENUM_ORDER_TYPE_VALUE _mode, int _method = 0, double _level = 0.0) {
     double _trail = _level * Market().GetPipSize();
-    int _direction = Order::OrderDirection(_cmd) * (_mode == ORDER_TYPE_SL ? -1 : 1);
+    int _direction = Order::OrderDirection(_cmd, _mode);
     double _default_value = Market().GetCloseOffer(_cmd) + _trail * _method * _direction;
     double _result = _default_value;
     switch (_method) {
-      case 0: {
+      case 0:
         // @todo
-      }
+        // _indi.GetLowest()/_indi.GetHighest()
+        break;
     }
     return _result;
   }
