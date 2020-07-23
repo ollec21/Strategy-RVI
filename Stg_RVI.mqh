@@ -82,7 +82,7 @@ class Stg_RVI : public Strategy {
     RVIParams rvi_params(_params.RVI_Period);
     rvi_params.SetTf(_tf);
     StgParams sparams(new Trade(_tf, _Symbol), new Indi_RVI(rvi_params), NULL, NULL);
-    sparams.logger.SetLevel(_log_level);
+    sparams.logger.Ptr().SetLevel(_log_level);
     sparams.SetMagicNo(_magic_no);
     sparams.SetSignals(_params.RVI_SignalOpenMethod, _params.RVI_SignalOpenLevel, _params.RVI_SignalCloseMethod,
                        _params.RVI_SignalOpenFilterMethod, _params.RVI_SignalOpenBoostMethod,
