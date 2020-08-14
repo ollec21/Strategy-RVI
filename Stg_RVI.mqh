@@ -8,14 +8,14 @@ INPUT unsigned int RVI_Period = 10;                 // Averaging period
 INPUT ENUM_SIGNAL_LINE RVI_Mode = 0;                // Indicator line index.
 INPUT int RVI_Shift = 2;                            // Shift
 INPUT int RVI_SignalOpenMethod = 0;                 // Signal open method (0-
-INPUT float RVI_SignalOpenLevel = 0.00000000;      // Signal open level
+INPUT float RVI_SignalOpenLevel = 0.00000000;       // Signal open level
 INPUT int RVI_SignalOpenFilterMethod = 0.00000000;  // Signal open filter method
 INPUT int RVI_SignalOpenBoostMethod = 0.00000000;   // Signal open boost method
 INPUT int RVI_SignalCloseMethod = 0;                // Signal close method (0-
-INPUT float RVI_SignalCloseLevel = 0.00000000;     // Signal close level
+INPUT float RVI_SignalCloseLevel = 0.00000000;      // Signal close level
 INPUT int RVI_PriceLimitMethod = 0;                 // Price limit method
-INPUT float RVI_PriceLimitLevel = 0;               // Price limit level
-INPUT float RVI_MaxSpread = 6.0;                   // Max spread to trade (pips)
+INPUT float RVI_PriceLimitLevel = 0;                // Price limit level
+INPUT float RVI_MaxSpread = 6.0;                    // Max spread to trade (pips)
 
 // Includes.
 #include <EA31337-classes/Indicators/Indi_RVI.mqh>
@@ -27,14 +27,14 @@ struct Stg_RVI_Params : StgParams {
   ENUM_SIGNAL_LINE RVI_Mode;
   int RVI_Shift;
   int RVI_SignalOpenMethod;
-  double RVI_SignalOpenLevel;
+  float RVI_SignalOpenLevel;
   int RVI_SignalOpenFilterMethod;
   int RVI_SignalOpenBoostMethod;
   int RVI_SignalCloseMethod;
-  double RVI_SignalCloseLevel;
+  float RVI_SignalCloseLevel;
   int RVI_PriceLimitMethod;
-  double RVI_PriceLimitLevel;
-  double RVI_MaxSpread;
+  float RVI_PriceLimitLevel;
+  float RVI_MaxSpread;
 
   // Constructor: Set default param values.
   Stg_RVI_Params()
@@ -140,6 +140,6 @@ class Stg_RVI : public Strategy {
       }
       _result += _trail * _direction;
     }
-    return _result;
+    return (float)_result;
   }
 };
