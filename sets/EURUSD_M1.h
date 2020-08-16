@@ -1,21 +1,27 @@
-//+------------------------------------------------------------------+
-//|                  EA31337 - multi-strategy advanced trading robot |
-//|                       Copyright 2016-2020, 31337 Investments Ltd |
-//|                                       https://github.com/EA31337 |
-//+------------------------------------------------------------------+
+/*
+ * @file
+ * Defines default strategy parameter values for the given timeframe.
+ */
+
+// Defines indicator's parameter values for the given pair symbol and timeframe.
+struct Indi_RVI_Params_M1 : Indi_RVI_Params {
+  Indi_RVI_Params_M1() : Indi_RVI_Params(indi_rvi_defaults, PERIOD_M1) { shift = 0; }
+} indi_rvi_m1;
 
 // Defines strategy's parameter values for the given pair symbol and timeframe.
-struct Stg_RVI_EURUSD_M1_Params : Stg_RVI_Params {
-  Stg_RVI_EURUSD_M1_Params() {
-    RVI_Period = 32;
-    RVI_Mode = 0;
-    RVI_Shift = 0;
-    RVI_SignalOpenMethod = 0;
-    RVI_SignalOpenLevel = 0;
-    RVI_SignalCloseMethod = 0;
-    RVI_SignalCloseLevel = 0;
-    RVI_PriceLimitMethod = 0;
-    RVI_PriceLimitLevel = 0;
-    RVI_MaxSpread = 2;
+struct Stg_RVI_Params_M1 : StgParams {
+  // Struct constructor.
+  Stg_RVI_Params_M1() : StgParams(stg_rvi_defaults) {
+    lot_size = 0;
+    signal_open_method = 0;
+    signal_open_filter = 1;
+    signal_open_level = 0;
+    signal_open_boost = 0;
+    signal_close_method = 0;
+    signal_close_level = 0;
+    price_limit_method = 0;
+    price_limit_level = 2;
+    tick_filter_method = 1;
+    max_spread = 0;
   }
 } stg_rvi_m1;
