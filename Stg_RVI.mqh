@@ -3,10 +3,6 @@
  * Implements RVI strategy based on the Relative Vigor Index indicator.
  */
 
-// Includes.
-#include <EA31337-classes/Indicators/Indi_RVI.mqh>
-#include <EA31337-classes/Strategy.mqh>
-
 // User input params.
 INPUT float RVI_LotSize = 0;                        // Lot size
 INPUT int RVI_SignalOpenMethod = 0;                 // Signal open method (0-
