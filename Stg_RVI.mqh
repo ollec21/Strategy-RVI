@@ -101,15 +101,15 @@ class Stg_RVI : public Strategy {
     if (_is_valid) {
       switch (_cmd) {
         case ORDER_TYPE_BUY:
-          _result = _indi[CURR][LINE_MAIN] > _indi[CURR][LINE_SIGNAL] + _level;
+          _result = _indi[CURR][(int)LINE_MAIN] > _indi[CURR][(int)LINE_SIGNAL] + _level;
           // Buy: main line (green) crosses signal (red) upwards.
-          if (METHOD(_method, 0)) _result &= _indi[PPREV][LINE_MAIN] < _indi[PPREV][LINE_SIGNAL];
+          if (METHOD(_method, 0)) _result &= _indi[PPREV][(int)LINE_MAIN] < _indi[PPREV][(int)LINE_SIGNAL];
           if (METHOD(_method, 1)) _result &= _indi[CURR][0] < _level;
           break;
         case ORDER_TYPE_SELL:
-          _result = _indi[CURR][LINE_MAIN] < _indi[CURR][LINE_SIGNAL] - _level;
+          _result = _indi[CURR][(int)LINE_MAIN] < _indi[CURR][(int)LINE_SIGNAL] - _level;
           // Sell: main line (green) crosses signal (red) downwards.
-          if (METHOD(_method, 0)) _result &= _indi[PPREV][LINE_MAIN] > _indi[PPREV][LINE_SIGNAL];
+          if (METHOD(_method, 0)) _result &= _indi[PPREV][(int)LINE_MAIN] > _indi[PPREV][(int)LINE_SIGNAL];
           if (METHOD(_method, 1)) _result &= _indi[CURR][0] > _level;
           break;
       }
