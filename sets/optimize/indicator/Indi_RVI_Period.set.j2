@@ -1,0 +1,9 @@
+RVI_Indi_RVI_Applied_Price={{ applied_price | replace("(ENUM_APPLIED_PRICE)", "") | int | default(0) }}
+RVI_Indi_RVI_MA_Method={{ ma_method | default(0) }}
+RVI_Indi_RVI_Period,1=4
+RVI_Indi_RVI_Period,2=4
+RVI_Indi_RVI_Period,3=24
+RVI_Indi_RVI_Period,F=1
+RVI_Indi_RVI_Period={{ period | default(4) }}
+RVI_SignalOpenFilterMethod=1
+RVI_TickFilterMethod=1
