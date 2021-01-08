@@ -25,7 +25,7 @@ struct Stg_RVI_Params_{{ Timeframe }} : StgParams {
     signal_close_method = {{ RVI_SignalCloseMethod | default(0) }};
     signal_close_level = (float){{ RVI_SignalCloseLevel | default(0) }};
     price_stop_method = {{ RVI_PriceStopMethod | default(0) }};
-    price_stop_level = {{ RVI_SignalCloseLevel | default(1) }};
+    price_stop_level = (float){{ RVI_SignalCloseLevel | default(1) }};
     tick_filter_method = {{ RVI_TickFilterMethod  | default(1) }};
     max_spread = {{ RVI_MaxSpread | default(0) }};
   }
