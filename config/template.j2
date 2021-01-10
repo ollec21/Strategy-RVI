@@ -4,10 +4,8 @@
  */
 
 // Defines indicator's parameter values for the given pair symbol and timeframe.
-struct Indi_RVI_Params_{{ Timeframe }} : Indi_RVI_Params {
-  Indi_RVI_Params_{{ Timeframe }}() : Indi_RVI_Params(indi_rvi_defaults, PERIOD_{{ Timeframe }}) {
-    applied_price = (ENUM_APPLIED_PRICE){{ RVI_Indi_RVI_Applied_Price | default(0) }};
-    ma_method = {{ RVI_Indi_RVI_MA_Method | default(0) }};
+struct Indi_RVI_Params_{{ Timeframe }} : RVIParams {
+  Indi_RVI_Params_{{ Timeframe }}() : RVIParams(indi_rvi_defaults, PERIOD_{{ Timeframe }}) {
     period = {{ RVI_Indi_RVI_Period | default(0) }};
     shift = {{ RVI_Shift | default(0) }};
   }

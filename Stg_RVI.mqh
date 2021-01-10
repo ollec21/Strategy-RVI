@@ -19,8 +19,8 @@ INPUT int RVI_Shift = 2;                           // Shift
 INPUT int RVI_OrderCloseTime = -20;                // Order close time in mins (>0) or bars (<0)
 INPUT string __RVI_Indi_RVI_Parameters__ =
     "-- RVI strategy: RVI indicator params --";  // >>> RVI strategy: RVI indicator <<<
-INPUT unsigned int Indi_RVI_Period = 10;         // Averaging period
-INPUT ENUM_SIGNAL_LINE Indi_RVI_Mode = 0;        // Indicator line index.
+INPUT unsigned int RVI_Indi_RVI_Period = 10;     // Averaging period
+INPUT int RVI_Indi_RVI_Shift = 0;                // Shift
 
 // Structs.
 
@@ -28,12 +28,6 @@ INPUT ENUM_SIGNAL_LINE Indi_RVI_Mode = 0;        // Indicator line index.
 struct Indi_RVI_Params_Defaults : RVIParams {
   Indi_RVI_Params_Defaults() : RVIParams(::Indi_RVI_Period) {}
 } indi_rvi_defaults;
-
-// Defines struct to store indicator parameter values.
-struct Indi_RVI_Params : public RVIParams {
-  // Struct constructors.
-  void Indi_RVI_Params(RVIParams &_params, ENUM_TIMEFRAMES _tf) : RVIParams(_params, _tf) {}
-};
 
 // Defines struct with default user strategy values.
 struct Stg_RVI_Params_Defaults : StgParams {
