@@ -1,13 +1,7 @@
-RVI_Indi_RVI_Applied_Price={{ applied_price | replace("(ENUM_APPLIED_PRICE)", "") | int | default(0) }}
-RVI_Indi_RVI_MA_Method={{ ma_method | default(0) }}
-RVI_Indi_RVI_Period={{ (period | default(0) | int) }}
 RVI_Indi_RVI_Shift,1=0
 RVI_Indi_RVI_Shift,2=1
-RVI_Indi_RVI_Shift,3=3
+RVI_Indi_RVI_Shift,3=4
 RVI_Indi_RVI_Shift,F=1
-RVI_Indi_RVI_Shift={{ shift | default(0) }}
-RVI_LotSize={{ lot_size | default(0) }}
-RVI_PriceStopMethod=0
+RVI_Indi_RVI_Shift={{ (shift | default(0) | int) }}
 RVI_SignalOpenFilterMethod=1
-RVI_SignalOpenLevel={{ signal_open_level | replace("(float)", "") | float | default(0) }}
 RVI_TickFilterMethod=1

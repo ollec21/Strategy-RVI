@@ -1,7 +1,7 @@
-; Optimize strategy indicator's RVI params.
+; Optimize indicator's shift param.
 RVI_Indi_RVI_Shift,1=0
 RVI_Indi_RVI_Shift,2=1
-RVI_Indi_RVI_Shift,3=3
+RVI_Indi_RVI_Shift,3=4
 RVI_Indi_RVI_Shift,F=1
 RVI_SignalOpenFilterMethod=1
 RVI_TickFilterMethod=1
