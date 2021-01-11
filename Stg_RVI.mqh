@@ -39,11 +39,11 @@ struct Stg_RVI_Params_Defaults : StgParams {
 
 // Struct to define strategy parameters to override.
 struct Stg_RVI_Params : StgParams {
-  Indi_RVI_Params iparams;
+  RVIParams iparams;
   StgParams sparams;
 
   // Struct constructors.
-  Stg_RVI_Params(Indi_RVI_Params &_iparams, StgParams &_sparams)
+  Stg_RVI_Params(RVIParams &_iparams, StgParams &_sparams)
       : iparams(indi_rvi_defaults, _iparams.tf), sparams(stg_rvi_defaults) {
     iparams = _iparams;
     sparams = _sparams;
@@ -65,11 +65,11 @@ class Stg_RVI : public Strategy {
 
   static Stg_RVI *Init(ENUM_TIMEFRAMES _tf = NULL, long _magic_no = NULL, ENUM_LOG_LEVEL _log_level = V_INFO) {
     // Initialize strategy initial values.
-    Indi_RVI_Params _indi_params(indi_rvi_defaults, _tf);
+    RVIParams _indi_params(indi_rvi_defaults, _tf);
     StgParams _stg_params(stg_rvi_defaults);
     if (!Terminal::IsOptimization()) {
-      SetParamsByTf<Indi_RVI_Params>(_indi_params, _tf, indi_rvi_m1, indi_rvi_m5, indi_rvi_m15, indi_rvi_m30,
-                                     indi_rvi_h1, indi_rvi_h4, indi_rvi_h8);
+      SetParamsByTf<RVIParams>(_indi_params, _tf, indi_rvi_m1, indi_rvi_m5, indi_rvi_m15, indi_rvi_m30, indi_rvi_h1,
+                               indi_rvi_h4, indi_rvi_h8);
       SetParamsByTf<StgParams>(_stg_params, _tf, stg_rvi_m1, stg_rvi_m5, stg_rvi_m15, stg_rvi_m30, stg_rvi_h1,
                                stg_rvi_h4, stg_rvi_h8);
     }
