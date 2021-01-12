@@ -26,7 +26,7 @@ INPUT int RVI_Indi_RVI_Shift = 0;                // Shift
 
 // Defines struct with default user indicator values.
 struct Indi_RVI_Params_Defaults : RVIParams {
-  Indi_RVI_Params_Defaults() : RVIParams(::Indi_RVI_Period) {}
+  Indi_RVI_Params_Defaults() : RVIParams(::RVI_Indi_RVI_Period, ::RVI_Indi_RVI_Shift) {}
 } indi_rvi_defaults;
 
 // Defines struct with default user strategy values.
