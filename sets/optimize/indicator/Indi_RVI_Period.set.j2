@@ -1,4 +1,4 @@
-RVI_Indi_RVI_Period,1={{ (period | default(0) | int) - 12 | abs }}
+RVI_Indi_RVI_Period,1={{ ((period | default(0) | int) - 12) | abs }}
 RVI_Indi_RVI_Period,2=4
 RVI_Indi_RVI_Period,3={{ (period | default(0) | int) + 12 }}
 RVI_Indi_RVI_Period,F=1
