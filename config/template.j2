@@ -7,7 +7,7 @@
 struct Indi_RVI_Params_{{ Timeframe }} : RVIParams {
   Indi_RVI_Params_{{ Timeframe }}() : RVIParams(indi_rvi_defaults, PERIOD_{{ Timeframe }}) {
     period = {{ RVI_Indi_RVI_Period | default(0) }};
-    shift = {{ RVI_Shift | default(0) }};
+    shift = {{ RVI_Indi_RVI_Shift | default(0) }};
   }
 } indi_rvi_{{ Timeframe | lower }};
 
