@@ -5,7 +5,10 @@
 
 // Defines indicator's parameter values for the given pair symbol and timeframe.
 struct Indi_RVI_Params_H4 : RVIParams {
-  Indi_RVI_Params_H4() : RVIParams(indi_rvi_defaults, PERIOD_H4) { shift = 0; }
+  Indi_RVI_Params_H4() : RVIParams(indi_rvi_defaults, PERIOD_H4) {
+    period = 20;
+    shift = 0;
+  }
 } indi_rvi_h4;
 
 // Defines strategy's parameter values for the given pair symbol and timeframe.
