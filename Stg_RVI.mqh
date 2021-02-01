@@ -68,12 +68,12 @@ class Stg_RVI : public Strategy {
     // Initialize strategy initial values.
     RVIParams _indi_params(indi_rvi_defaults, _tf);
     StgParams _stg_params(stg_rvi_defaults);
-    if (!Terminal::IsOptimization()) {
-      SetParamsByTf<RVIParams>(_indi_params, _tf, indi_rvi_m1, indi_rvi_m5, indi_rvi_m15, indi_rvi_m30, indi_rvi_h1,
-                               indi_rvi_h4, indi_rvi_h8);
-      SetParamsByTf<StgParams>(_stg_params, _tf, stg_rvi_m1, stg_rvi_m5, stg_rvi_m15, stg_rvi_m30, stg_rvi_h1,
-                               stg_rvi_h4, stg_rvi_h8);
-    }
+#ifdef __config__
+    SetParamsByTf<RVIParams>(_indi_params, _tf, indi_rvi_m1, indi_rvi_m5, indi_rvi_m15, indi_rvi_m30, indi_rvi_h1,
+                             indi_rvi_h4, indi_rvi_h8);
+    SetParamsByTf<StgParams>(_stg_params, _tf, stg_rvi_m1, stg_rvi_m5, stg_rvi_m15, stg_rvi_m30, stg_rvi_h1, stg_rvi_h4,
+                             stg_rvi_h8);
+#endif
     // Initialize indicator.
     RVIParams rvi_params(_indi_params);
     _stg_params.SetIndicator(new Indi_RVI(_indi_params));
